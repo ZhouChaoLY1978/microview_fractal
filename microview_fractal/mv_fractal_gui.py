@@ -158,7 +158,7 @@ class MvGui(QMainWindow):
         self.table_widget.setItem(3, 0, item_1)
 
     def _set_v1_right_5(self):
-        self.adv_label = QLabel("图标区")
+        self.adv_label = QLabel("GPL v3")
         self.v1_layout_right.addWidget(self.adv_label)
 
     def _draw_fractal_profile(self):
