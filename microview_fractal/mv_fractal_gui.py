@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 import sys
 
+import PySide2
 from PySide2.QtCore import QRegExp
 from PySide2.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
                              QGroupBox, QRadioButton, QLineEdit, QLabel, QCheckBox, QFormLayout,
                              QPushButton, QTableWidget, QTableWidgetItem, QAbstractItemView,
                              QToolTip, QComboBox, QAction, QMessageBox)
 from PySide2 import QtWidgets
-from PySide2.QtGui import QFont, QRegExpValidator
+from PySide2.QtGui import QFont, QRegExpValidator, QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+import matplotlib
 import numpy as np
 from mv_creator import MvCreator
 from mv_parameter import MvParameter
@@ -26,6 +28,9 @@ class MvGui(QMainWindow):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.ax = self.figure.add_subplot(111)
+        matplotlib.rcParams["font.family"] = "STSong"
+
+        self._para_group = QGroupBox("输入建模参数")
 
         self._int_ui()
 
@@ -33,32 +38,41 @@ class MvGui(QMainWindow):
         self.setWindowTitle("分形轮廓建模及表征参数计算")
         self.setMinimumSize(800, 600)   # 固定界面尺寸
         self.setMaximumSize(800, 600)   # 固定界面尺寸
-
+        # --------
+        self.setWindowIcon(QIcon("main_icon.png"))
+        # --------
         self.status = self.statusBar()
         self.status.showMessage("分形轮廓建模及表征参数计算", 10000)
-
+        # --------
+        # 菜单 ---------
         self.menu = self.menuBar()
-        menu_help = self.menu.addMenu("帮助")
-        about = QAction("关于...", self)
-        menu_help.addAction(about)
-        menu_help.triggered[QAction].connect(self._help_process)
-
+        help_menu = self.menu.addMenu("帮助")
+        about_action = QAction("关于...", self)
+        help_menu.addAction(about_action)
+        help_menu.triggered[QAction].connect(self._help_process)
+        # --------
+        # 工具栏 --------
+        exit_action = QAction(QIcon("../icons/close.png"), "Exit", self)
+        exit_action.triggered.connect(self.close)
+        self.toolbar = self.addToolBar("Exit")
+        self.toolbar.addAction(exit_action)
+        # --------
+        # 设定全局布局和窗口的中心控件 --------
         self.glb_layout = QHBoxLayout()  # 设定全局布局
         self.v1_layout_left = QVBoxLayout()
         self.v1_layout_right = QVBoxLayout()
+        self.glb_layout.addLayout(self.v1_layout_left)
+        self.glb_layout.addLayout(self.v1_layout_right)
 
         self.c_widget = QWidget()
         self.c_widget.setLayout(self.glb_layout)
         self.setCentralWidget(self.c_widget)
-
+        # --------
         self._set_v1_left()     # 为matplotlib画布及工具栏进行布局
-        self._set_v1_right_1()  # 为"选择算法区域"进行布局
-        self._set_v1_right_2()  # 为”设计参数“区域进行布局
-        self._set_v1_right_3()  # ”绘图“按钮布局
-        self._set_v1_right_4()  # 基本参数显示区域布局
-        self._set_v1_right_5()  # 图标区布局
-        self.glb_layout.addLayout(self.v1_layout_left)
-        self.glb_layout.addLayout(self.v1_layout_right)
+        self._set_model_method()  # 为"选择算法区域"进行布局
+        self._set_model_para()  # 为”分形参数“区域进行布局
+        self._set_button()  # ”绘图“按钮布局
+        self._set_show_para()  # 基本参数显示区域布局
 
         self._draw_fractal_profile()
 
@@ -72,7 +86,7 @@ class MvGui(QMainWindow):
         self.v1_layout_left.addWidget(self.cbx_equal)
         self.v1_layout_left.addWidget(self.toolbar)
 
-    def _set_v1_right_1(self):
+    def _set_model_method(self):
         group_method = QGroupBox("选择建模算法")
         group_method.setMaximumHeight(120)
         self.radio_dft = QRadioButton("离散傅里叶逆变换")
@@ -80,9 +94,9 @@ class MvGui(QMainWindow):
         self.radio_wm = QRadioButton("W-M函数法")
         self.radio_dft.setChecked(True)
 
-        self.radio_dft.toggled.connect(lambda: self._sel_method(self.radio_dft))
-        self.radio_rmd.toggled.connect(lambda: self._sel_method(self.radio_rmd))
-        self.radio_wm.toggled.connect(lambda: self._sel_method(self.radio_wm))
+        self.radio_dft.toggled.connect(lambda: self._select_method(self.radio_dft))
+        self.radio_rmd.toggled.connect(lambda: self._select_method(self.radio_rmd))
+        self.radio_wm.toggled.connect(lambda: self._select_method(self.radio_wm))
 
         layout_r1 = QVBoxLayout()
         layout_r1.addWidget(self.radio_dft)
@@ -91,32 +105,42 @@ class MvGui(QMainWindow):
         group_method.setLayout(layout_r1)
         self.v1_layout_right.addWidget(group_method)
 
-    def _set_v1_right_2(self):
-        group_para = QGroupBox("输入建模参数")
-        group_para.setMaximumHeight(150)
+    def _set_model_para(self, method="离散傅里叶逆变换"):
+        self._para_group.setMaximumHeight(150)
+        # 设置4个标签 ---------
         self.lab_dim = QLabel("分形维数：")
+        if method == "离散傅里叶逆变换":
+            self.lab_sq = QLabel("高度Rq：")
+        else:
+            self.lab_sq.setText("尺度系数：")
+        self.lab_num = QLabel("采样点数：")
+        self.lab_inter = QLabel("采样间隔：")
+        # 设置4个编辑控件 --------
         self.edt_dim = QLineEdit()
+
         self.edt_dim.setText("1.2")
         reg = QRegExp("1+(.[0-9]{1,3})?$")
         pValidator = QRegExpValidator(self)
         pValidator.setRegExp(reg)
         self.edt_dim.setValidator(pValidator)
 
-        self.lab_sq = QLabel("高度Rq：")
         self.edt_sq = QLineEdit()
         self.edt_sq.setText("1.0")
 
-        self.lab_num = QLabel("采样点数：")
         self.cbx_num = QComboBox()
         self.cbx_num.addItems(["64", "128", "256", "512", "1024", "2048", "4096"])
         self.cbx_num.setCurrentIndex(3)
 
-        self.lab_inter = QLabel("采样间隔：")
         self.edt_inter = QLineEdit()
         self.edt_inter.setText("1")
 
         self.chx_stable = QCheckBox("平稳分形")
-        self.chx_stable.setChecked(True)
+        if method == "随机中点位移法":
+            self.chx_stable.setDisabled(True)
+            self.chx_stable.setChecked(False)
+        else:
+            self.chx_stable.setDisabled(False)
+            self.chx_stable.setChecked(True)
 
         form_layout = QFormLayout()
         form_layout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.lab_dim)
@@ -129,17 +153,17 @@ class MvGui(QMainWindow):
         form_layout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.edt_inter)
         form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.chx_stable)
 
-        group_para.setLayout(form_layout)
-        self.v1_layout_right.addWidget(group_para)
+        self._para_group.setLayout(form_layout)
+        self.v1_layout_right.addWidget(self._para_group)
 
-    def _set_v1_right_3(self):
+    def _set_button(self):
         self.btn_draw = QPushButton("绘图")
         self.btn_draw.setToolTip("单击开始绘图")
         self.btn_draw.setDefault(True)      # 设置为默认按钮
         self.v1_layout_right.addWidget(self.btn_draw)
         self.btn_draw.clicked.connect(self._draw_fractal_profile)
 
-    def _set_v1_right_4(self):
+    def _set_show_para(self):
         self.table_widget = QTableWidget()
         self.table_widget.setRowCount(4)
         self.table_widget.setColumnCount(2)
@@ -159,7 +183,7 @@ class MvGui(QMainWindow):
 
     def _set_v1_right_5(self):
         self.adv_label = QLabel("GPL v3")
-        self.v1_layout_right.addWidget(self.adv_label)
+        # self.v1_layout_right.addWidget(self.adv_label)
 
     def _draw_fractal_profile(self):
         profile_crtor = MvCreator()
@@ -225,9 +249,9 @@ class MvGui(QMainWindow):
 
     def _help_process(self, g):
         if g.text() == "关于...":
-            QMessageBox.information(self, "关于", "作者：周超<p>邮箱：zandz1978@126.com<p>协议：GPL v3")
+            QMessageBox.information(self, "关于", "作者：周超<p>邮箱：zandz1978@126.com<p>版本：0.5<p>协议：GPL v3")
 
-    def _sel_method(self, btn_method):
+    def _select_method(self, btn_method):
         if btn_method.isChecked():
             self.method = btn_method.text()
         if self.method == "离散傅里叶逆变换":
@@ -245,6 +269,16 @@ class MvGui(QMainWindow):
             self.chx_stable.setText("随机相位")
             self.chx_stable.setDisabled(False)
             self.chx_stable.setChecked(True)
+
+    def closeEvent(self, event:PySide2.QtGui.QCloseEvent):
+        reply = QMessageBox.question(self, '消息',
+                                     "确认退出?", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 if __name__ == "__main__":
