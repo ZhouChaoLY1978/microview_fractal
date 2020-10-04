@@ -19,27 +19,29 @@ from mv_parameter import MvParameter
 from mv_data import MvData
 
 
-class MvGui(QMainWindow):
+class MvFractalProfileGui(QMainWindow):
     def __init__(self):
-        super().__init__()
+        super().__init__()  # 调用基类的构造函数
+
         QToolTip.setFont(QFont('Sans Serif', 12))
-        self.method = "离散傅里叶逆变换"
+
         self.data = MvData()
+        self.method = "离散傅里叶逆变换"
+        # --------
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.ax = self.figure.add_subplot(111)
         matplotlib.rcParams["font.family"] = "STSong"
+        # --------
 
-        self._para_group = QGroupBox("输入建模参数")
+        self._init_ui()
 
-        self._int_ui()
-
-    def _int_ui(self):
+    def _init_ui(self):
         self.setWindowTitle("分形轮廓建模及表征参数计算")
         self.setMinimumSize(800, 600)   # 固定界面尺寸
         self.setMaximumSize(800, 600)   # 固定界面尺寸
         # --------
-        self.setWindowIcon(QIcon("main_icon.png"))
+        self.setWindowIcon(QIcon("../icons/main_icon.png"))
         # --------
         self.status = self.statusBar()
         self.status.showMessage("分形轮廓建模及表征参数计算", 10000)
@@ -59,32 +61,35 @@ class MvGui(QMainWindow):
         # --------
         # 设定全局布局和窗口的中心控件 --------
         self.glb_layout = QHBoxLayout()  # 设定全局布局
-        self.v1_layout_left = QVBoxLayout()
-        self.v1_layout_right = QVBoxLayout()
-        self.glb_layout.addLayout(self.v1_layout_left)
-        self.glb_layout.addLayout(self.v1_layout_right)
+        self.left_layout_lev1 = QVBoxLayout()
+        self.right_layout_lev1 = QVBoxLayout()
+        self.glb_layout.addLayout(self.left_layout_lev1)
+        self.glb_layout.addLayout(self.right_layout_lev1)
 
         self.c_widget = QWidget()
         self.c_widget.setLayout(self.glb_layout)
         self.setCentralWidget(self.c_widget)
         # --------
-        self._set_v1_left()     # 为matplotlib画布及工具栏进行布局
+        self._set_matplotlib_layout()     # 为matplotlib画布及工具栏进行布局
         self._set_model_method()  # 为"选择算法区域"进行布局
-        self._set_model_para()  # 为”分形参数“区域进行布局
+        self._set_get_para()  # 为”分形参数“区域进行布局
         self._set_button()  # ”绘图“按钮布局
         self._set_show_para()  # 基本参数显示区域布局
 
         self._draw_fractal_profile()
 
-    def _set_v1_left(self):
+    def _set_matplotlib_layout(self):
         self.toolbar = NavigationToolbar(self.canvas, self.c_widget)
 
         self.cbx_equal = QCheckBox("等比例坐标")
         self.cbx_equal.stateChanged.connect(lambda : self._equal_state())
         
-        self.v1_layout_left.addWidget(self.canvas)
-        self.v1_layout_left.addWidget(self.cbx_equal)
-        self.v1_layout_left.addWidget(self.toolbar)
+        self.left_layout_lev1.addWidget(self.canvas)
+        self.left_layout_lev1.addWidget(self.cbx_equal)
+        self.left_layout_lev1.addWidget(self.toolbar)
+
+    def _equal_state(self):
+        self._redraw()
 
     def _set_model_method(self):
         group_method = QGroupBox("选择建模算法")
@@ -98,15 +103,16 @@ class MvGui(QMainWindow):
         self.radio_rmd.toggled.connect(lambda: self._select_method(self.radio_rmd))
         self.radio_wm.toggled.connect(lambda: self._select_method(self.radio_wm))
 
-        layout_r1 = QVBoxLayout()
-        layout_r1.addWidget(self.radio_dft)
-        layout_r1.addWidget(self.radio_rmd)
-        layout_r1.addWidget(self.radio_wm)
-        group_method.setLayout(layout_r1)
-        self.v1_layout_right.addWidget(group_method)
+        layout = QVBoxLayout()
+        layout.addWidget(self.radio_dft)
+        layout.addWidget(self.radio_rmd)
+        layout.addWidget(self.radio_wm)
+        group_method.setLayout(layout)
+        self.right_layout_lev1.addWidget(group_method)
 
-    def _set_model_para(self, method="离散傅里叶逆变换"):
-        self._para_group.setMaximumHeight(150)
+    def _set_get_para(self, method="离散傅里叶逆变换"):
+        para_group = QGroupBox("输入建模参数")
+        para_group.setMaximumHeight(150)
         # 设置4个标签 ---------
         self.lab_dim = QLabel("分形维数：")
         if method == "离散傅里叶逆变换":
@@ -117,7 +123,6 @@ class MvGui(QMainWindow):
         self.lab_inter = QLabel("采样间隔：")
         # 设置4个编辑控件 --------
         self.edt_dim = QLineEdit()
-
         self.edt_dim.setText("1.2")
         reg = QRegExp("1+(.[0-9]{1,3})?$")
         pValidator = QRegExpValidator(self)
@@ -153,21 +158,21 @@ class MvGui(QMainWindow):
         form_layout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.edt_inter)
         form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.chx_stable)
 
-        self._para_group.setLayout(form_layout)
-        self.v1_layout_right.addWidget(self._para_group)
+        para_group.setLayout(form_layout)
+        self.right_layout_lev1.addWidget(para_group)
 
     def _set_button(self):
         self.btn_draw = QPushButton("绘图")
         self.btn_draw.setToolTip("单击开始绘图")
         self.btn_draw.setDefault(True)      # 设置为默认按钮
-        self.v1_layout_right.addWidget(self.btn_draw)
+        self.right_layout_lev1.addWidget(self.btn_draw)
         self.btn_draw.clicked.connect(self._draw_fractal_profile)
 
     def _set_show_para(self):
         self.table_widget = QTableWidget()
         self.table_widget.setRowCount(4)
         self.table_widget.setColumnCount(2)
-        self.v1_layout_right.addWidget(self.table_widget)
+        self.right_layout_lev1.addWidget(self.table_widget)
         self.table_widget.setHorizontalHeaderLabels(['参数', '值'])
         self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table_widget.setColumnWidth(0, 80)
@@ -180,10 +185,6 @@ class MvGui(QMainWindow):
         self.table_widget.setItem(2, 0, item_1)
         item_1 = QTableWidgetItem("Rku")
         self.table_widget.setItem(3, 0, item_1)
-
-    def _set_v1_right_5(self):
-        self.adv_label = QLabel("GPL v3")
-        # self.v1_layout_right.addWidget(self.adv_label)
 
     def _draw_fractal_profile(self):
         profile_crtor = MvCreator()
@@ -244,9 +245,6 @@ class MvGui(QMainWindow):
 
         self.canvas.draw()
 
-    def _equal_state(self):
-        self._redraw()
-
     def _help_process(self, g):
         if g.text() == "关于...":
             QMessageBox.information(self, "关于", "作者：周超<p>邮箱：zandz1978@126.com<p>版本：0.5<p>协议：GPL v3")
@@ -255,7 +253,6 @@ class MvGui(QMainWindow):
         if btn_method.isChecked():
             self.method = btn_method.text()
         if self.method == "离散傅里叶逆变换":
-
             self.lab_sq.setText("高度Rq：")
             self.chx_stable.setText("平稳分形")
             self.chx_stable.setDisabled(False)
@@ -283,6 +280,6 @@ class MvGui(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    mv_gui = MvGui()
+    mv_gui = MvFractalProfileGui()
     mv_gui.show()
     sys.exit(app.exec_())
