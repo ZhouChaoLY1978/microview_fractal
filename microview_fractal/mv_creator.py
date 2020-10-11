@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from mv_data import MvData
-from mv_parameter import MvParameter
+from mv_parameter import Mv2dParameter
 import scipy
 
 
-class MvCreator(object):
+class Mv2dCreator(object):
     """ 创建二维数据
 
 
@@ -124,11 +124,11 @@ class MvCreator(object):
 
 
 def test_main():
-    mc = MvCreator()
+    mc = Mv2dCreator()
 
     # mc.create_data_wm(512,1.8,1,0.5)
     # mc.create_data_dft(1024, 1.3, 1, 1)
-    mp = MvParameter(mc.get_data())
+    mp = Mv2dParameter(mc.get_data())
     mc.create_data_mpd(1024, 1.5, 0.5, 0.2)
     data = mc.get_data()
     data.plot_data()

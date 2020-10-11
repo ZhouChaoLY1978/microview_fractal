@@ -14,8 +14,8 @@ from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationTo
 from matplotlib.figure import Figure
 import matplotlib
 import numpy as np
-from mv_creator import MvCreator
-from mv_parameter import MvParameter
+from mv_creator import Mv2dCreator
+from mv_parameter import Mv2dParameter
 from mv_data import MvData
 
 
@@ -55,6 +55,7 @@ class MvFractalProfileGui(QMainWindow):
         # --------
         # 工具栏 --------
         exit_action = QAction(QIcon("../icons/close.png"), "Exit", self)
+        exit_action.setStatusTip("退出应用")
         exit_action.triggered.connect(self.close)
         self.toolbar = self.addToolBar("Exit")
         self.toolbar.addAction(exit_action)
@@ -187,7 +188,7 @@ class MvFractalProfileGui(QMainWindow):
         self.table_widget.setItem(3, 0, item_1)
 
     def _draw_fractal_profile(self):
-        profile_crtor = MvCreator()
+        profile_crtor = Mv2dCreator()
         if self.method == "离散傅里叶逆变换":
             dim = float(self.edt_dim.text())
             sq = float(self.edt_sq.text())
@@ -213,7 +214,7 @@ class MvFractalProfileGui(QMainWindow):
 
         self._redraw()
 
-        paras = MvParameter(self.data)
+        paras = Mv2dParameter(self.data)
         rq = paras.get_Rq()
         item_1 = QTableWidgetItem(str(rq))
         self.table_widget.setItem(0, 1, item_1)

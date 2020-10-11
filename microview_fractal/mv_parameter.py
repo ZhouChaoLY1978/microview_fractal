@@ -14,7 +14,7 @@ import numpy as np
 from mv_data import MvData
 
 
-class MvParameter(object):
+class Mv2dParameter(object):
     """ 计算表征参数
     """
 

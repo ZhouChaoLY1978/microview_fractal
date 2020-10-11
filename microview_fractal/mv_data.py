@@ -41,7 +41,7 @@ class MvData(object):
 
 if __name__ == "__main__":
     md = MvData()
-    values = np.array([1, 2, 3, 4, 5])
+    values = np.array([[1, 2, 3, 4, 5], [3, 4, 5, 6, 7]])
 
     md.value = values
     md.interval = 0.5
