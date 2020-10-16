@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
 import PySide2
+from PySide2 import QtWidgets
+from PySide2.QtCore import QRegExp
+from PySide2.QtGui import QRegExpValidator
 from PySide2.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
@@ -13,6 +16,7 @@ class MvFractalSurfaceGui(QMainWindow):
     def __init__(self):
         super().__init__()
         self.data = MvData()
+        self.method = "离散傅里叶逆变换"
 
         self._init_ui()
 
@@ -37,6 +41,9 @@ class MvFractalSurfaceGui(QMainWindow):
 
         self._set_matplot_layout()
         self._set_model_method()
+        self._set_get_para()
+        self._set_button()
+        self._set_show_para()
 
     def _set_matplot_layout(self):
         self.figure = Figure()
@@ -99,12 +106,72 @@ class MvFractalSurfaceGui(QMainWindow):
         para_group.setMaximumHeight(150)
         # 设置4个标签 --------
         self.lab_dim = QLabel("分形维数：")
-
         if method == "离散傅里叶逆变换":
             self.lab_sq = QLabel("高度Sq：")
         else:
             self.lab_sq = QLabel("尺度系数：")
+        self.lab_num = QLabel("采样点数：")
+        self.lab_inter = QLabel("采样间隔：")
+        # 设置4个编辑控件 --------
+        self.edt_dim = QLineEdit()
+        self.edt_dim.setText("2.2")
+        reg = QRegExp("2+(.[0-9]{1,3})?$")
+        p_validator = QRegExpValidator(self)
+        p_validator.setRegExp(reg)
+        self.edt_dim.setValidator(p_validator)
+        self.edt_sq = QLineEdit()
+        self.edt_sq.setText("1.0")
+        self.cbx_num = QComboBox()
+        self.cbx_num.addItems(["32x32", "64x64", "128x128", "256x256",
+                               "512x512", "1024x1024", "2048x2048"])
+        self.cbx_num.setCurrentIndex(3)
+        self.edt_inter = QLineEdit()
+        self.edt_inter.setText("1")
+        self.chx_stable = QCheckBox("平稳分形")
+        if method == "随机中点位移法":
+            self.chx_stable.setDisabled(True)
+            self.chx_stable.setChecked(False)
+        else:
+            self.chx_stable.setDisabled(False)
+            self.chx_stable.setChecked(True)
 
+        form_layout = QFormLayout()
+        form_layout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.lab_dim)
+        form_layout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.edt_dim)
+        form_layout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.lab_sq)
+        form_layout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.edt_sq)
+        form_layout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.lab_num)
+        form_layout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.cbx_num)
+        form_layout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.lab_inter)
+        form_layout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.edt_inter)
+        form_layout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.chx_stable)
+
+        para_group.setLayout(form_layout)
+        self.right_layout.addWidget(para_group)
+
+    def _set_button(self):
+        self.btn_draw = QPushButton("绘图")
+        self.btn_draw.setToolTip("单击开始绘图")
+        self.btn_draw.setDefault(True)
+        self.right_layout.addWidget(self.btn_draw)
+
+    def _set_show_para(self):
+        self.table_widget = QTableWidget()
+        self.table_widget.setRowCount(4)
+        self.table_widget.setColumnCount(2)
+        self.right_layout.addWidget(self.table_widget)
+        self.table_widget.setHorizontalHeaderLabels(['参数', '值'])
+        self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table_widget.setColumnWidth(0, 80)
+        self.table_widget.setMaximumHeight(180)
+        item_1 = QTableWidgetItem("Sq")
+        self.table_widget.setItem(0, 0, item_1)
+        item_1 = QTableWidgetItem("Sa")
+        self.table_widget.setItem(1, 0, item_1)
+        item_1 = QTableWidgetItem("Ssk")
+        self.table_widget.setItem(2, 0, item_1)
+        item_1 = QTableWidgetItem("Sku")
+        self.table_widget.setItem(3, 0, item_1)
 
 
 
