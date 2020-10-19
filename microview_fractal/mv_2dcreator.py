@@ -45,7 +45,7 @@ class Mv2dCreator(object):
         :param d: 分形维数，1<d<2
         :param rq: 轮廓采样点高度均方根偏差的期望值
         :param inter: 轮廓的采样间隔，存储在轮廓数据中，DFT时不需用到。
-        :param random: 生成轮廓的实际Rq值是否等于参数rq的值
+        :param stable: 生成轮廓的实际Rq值是否等于参数rq的值
         """
         # 判断采样点数n是否为2的幂次方，若n不是2的幂次方，则中断执行程序
         # 在GUI中，应用列表，保证输入为2的幂次方
