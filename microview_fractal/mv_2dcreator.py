@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from mv_data import MvData
-from mv_parameter import Mv2dParameter
 import scipy
 
 

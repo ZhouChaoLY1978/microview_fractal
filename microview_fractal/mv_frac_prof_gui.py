@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
-
 import PySide2
 from PySide2.QtCore import QRegExp
-from PySide2.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
-                             QGroupBox, QRadioButton, QLineEdit, QLabel, QCheckBox, QFormLayout,
-                             QPushButton, QTableWidget, QTableWidgetItem, QAbstractItemView,
-                             QToolTip, QComboBox, QAction, QMessageBox)
+from PySide2.QtWidgets import *
 from PySide2 import QtWidgets
 from PySide2.QtGui import QFont, QRegExpValidator, QIcon
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -14,8 +10,8 @@ from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationTo
 from matplotlib.figure import Figure
 import matplotlib
 import numpy as np
-from mv_creator import Mv2dCreator
-from mv_parameter import Mv2dParameter
+from mv_2dcreator import Mv2dCreator
+from mv_2dparameter import Mv2dParameter
 from mv_data import MvData
 
 
