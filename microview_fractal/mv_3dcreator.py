@@ -28,6 +28,7 @@ class Mv3dCreator(object):
         :param d: 分形维数
         :param sq: 表面采样点高度均方根偏差的期望值
         """
+
         temp_sum = 0
         for u in range(0, n // 2):
             for v in range(0, n // 2):
