@@ -30,7 +30,7 @@ class Mv3dCreator(object):
         """
 
         temp_sum = 0
-        for u in range(0, n // 2):
+        for u in range(1, n // 2):
             for v in range(0, n // 2):
                 if u == 0 and v == 0:
                     continue
