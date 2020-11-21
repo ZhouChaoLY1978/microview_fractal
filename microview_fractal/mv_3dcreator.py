@@ -19,7 +19,29 @@ class Mv3dCreator(object):
         :param inter: 表面采样间隔，存储在表面数据中，建模时不使用
         :param stable: 是否生成平稳分形表面
         """
-        pass
+        fractal_coef = self._get_fractal_cof_from_sq(n, d, sq)
+        fs_coef = np.zeros((n, n), dtype=complex)
+
+        sqrt_coef = np.sqrt(fractal_coef)
+
+        for u in range(1, n//2):
+            for v in range(1, n//2):
+                phase1 = np.random.uniform(0, 2 * np.pi)
+                phase2 = np.random.uniform(0, 2 * np.pi)
+                if stable:
+                    mag1 = sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
+                    mag2 = mag1
+                else:
+                    mag1 = np.random.uniform(0, 1) * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
+                    mag2 = np.random.uniform(0, 1) * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
+
+                    value_1 = np.complex(mag1 * np.cos(phase1), mag1 * np.sin(phase1))
+                    value_2 = np.complex(mag2 * np.cos(phase2), mag2 * np.sin(phase2))
+                    fs_coef[u, v] = value_1
+                    fs_coef[n-u, n-v] = np.conj(value_1)
+                    fs_coef[u, n-v] = value_2
+                    fs_coef[n-u, v] = np.conj(value_2)
+
 
     def _get_fractal_cof_from_sq(self, n, d, sq):
         """ 由分形表面的Sq值计算表面的尺度系数C
@@ -29,10 +51,15 @@ class Mv3dCreator(object):
         :param sq: 表面采样点高度均方根偏差的期望值
         """
 
-        temp_sum = 0
+        temp_sum_1 = 0
         for u in range(1, n // 2):
             for v in range(0, n // 2):
-                temp_sum = temp_sum + np.power(u**2+v**2, d-4)
+                temp_sum_1 = temp_sum_1 + np.power(u**2+v**2, d-4)
 
-        c = (sq**2 * n**4) / (4 * temp_sum)
+        temp_sum_2 = 0
+        for u in range(0, n // 2):
+            for v in range(1, n // 2):
+                temp_sum_2 = temp_sum_2 + np.power(u**2+v**2, d-4)
+
+        c = (sq**2 * n**4) / (2 * temp_sum_1 + 2 * temp_sum_2)
         return c
