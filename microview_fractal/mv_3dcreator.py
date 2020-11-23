@@ -21,7 +21,6 @@ class Mv3dCreator(object):
         """
         fractal_coef = self._get_fractal_cof_from_sq(n, d, sq)
         fs_coef = np.zeros((n, n), dtype=complex)
-        surface = np.zeros((n, n))
 
         sqrt_coef = np.sqrt(fractal_coef)
 
