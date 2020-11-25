@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import numpy as np
 import PySide2
 from PySide2 import QtWidgets
 from PySide2.QtCore import QRegExp
@@ -8,8 +9,12 @@ from PySide2.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 from mv_data import MvData
+from mv_3dcreator import Mv3dCreator
 
 
 class MvFractalSurfaceGui(QMainWindow):
@@ -45,10 +50,12 @@ class MvFractalSurfaceGui(QMainWindow):
         self._set_button()
         self._set_show_para()
 
+        self._draw_fractal_surface()
+
     def _set_matplot_layout(self):
-        self.figure = Figure()
+        self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
-        self.ax = self.figure.add_subplot(111)
+        self.ax = Axes3D(self.figure)
         matplotlib.rcParams["font.family"] = "STSong"
 
         self.toolbar = NavigationToolbar(self.canvas, self.c_widget)
@@ -78,8 +85,8 @@ class MvFractalSurfaceGui(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addWidget(self.radio_dft)
-        layout.addWidget(self.radio_rmd)
-        layout.addWidget(self.radio_wm)
+        # layout.addWidget(self.radio_rmd)
+        # layout.addWidget(self.radio_wm)
         gp_method.setLayout(layout)
         self.right_layout.addWidget(gp_method)
 
@@ -122,7 +129,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self.edt_sq = QLineEdit()
         self.edt_sq.setText("1.0")
         self.cbx_num = QComboBox()
-        self.cbx_num.addItems(["32x32", "64x64", "128x128", "256x256",
+        self.cbx_num.addItems(["32x32", "64x64", "128x128", "256",
                                "512x512", "1024x1024", "2048x2048"])
         self.cbx_num.setCurrentIndex(3)
         self.edt_inter = QLineEdit()
@@ -173,7 +180,29 @@ class MvFractalSurfaceGui(QMainWindow):
         item_1 = QTableWidgetItem("Sku")
         self.table_widget.setItem(3, 0, item_1)
 
+    def _draw_fractal_surface(self):
+        sc = Mv3dCreator()
+        if self.method == "离散傅里叶逆变换":
+            dim = float(self.edt_dim.text())
+            sq = float(self.edt_sq.text())
+            num = int(self.cbx_num.currentText())
+            si = float(self.edt_inter.text())
+            stable = self.chx_stable.isChecked()
+            sc.create_surf_dft(num, dim, sq, si, stable)
 
+        self.data = sc.get_data()
+        self._redraw()
+
+    def _redraw(self):
+        nx, ny = self.data.value.shape
+        si = self.data.interval
+        x = np.arange(0, nx*si, si)
+        y = np.arange(0, ny*si, si)
+        x, y = np.meshgrid(x, y)
+
+        self.ax.plot_surface(x, y, self.data.value, rstride=1,
+                             cstride=1, cmap=cm.viridis)
+        self.canvas.draw()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
