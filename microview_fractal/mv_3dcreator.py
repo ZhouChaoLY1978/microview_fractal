@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 from mv_data import MvData
 
 
@@ -60,7 +63,8 @@ class Mv3dCreator(object):
             fs_coef[0, n-i] = np.conj(value_v)
 
         surface = (np.fft.ifft2(fs_coef)).real
-        return surface
+        self.data.value = surface
+        self.data.interval = inter
 
     def _get_fractal_cof_from_sq(self, n, d, sq):
         """ 由分形表面的Sq值计算表面的尺度系数C
@@ -83,7 +87,21 @@ class Mv3dCreator(object):
         c = (sq**2 * n**4) / (2 * temp_sum_1 + 2 * temp_sum_2)
         return c
 
+    def show_surface(self, surf, n, i):
+        x = np.arange(0, n*i, i)
+        y = np.arange(0, n*i, i)
+        x, y = np.meshgrid(x, y)
+
+        fig = plt.figure()
+        ax = Axes3D(fig)
+        ax.plot_surface(x, y, surf, rstride=1, cstride=1, cmap=cm.viridis)
+        plt.show()
+
+    def get_data(self):
+        return self.data
+
+
 if __name__ == "__main__":
     test = Mv3dCreator()
-    s = test.create_surf_dft(8, 2.2, 1, 1)
-    print(s)
+    test.create_surf_dft(128, 2.2, 1, 1)
+    test.show_surface(test.get_data().value, 128, 1)
