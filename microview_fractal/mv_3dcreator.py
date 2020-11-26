@@ -35,8 +35,8 @@ class Mv3dCreator(object):
                     mag1 = sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
                     mag2 = mag1
                 else:
-                    mag1 = np.random.normal(0, 1) * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
-                    mag2 = np.random.normal(0, 1) * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
+                    mag1 = np.random.randn() * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
+                    mag2 = np.random.randn() * sqrt_coef * np.power(u**2 + v**2, (d-4)/2)
 
                 value_1 = np.complex(mag1 * np.cos(phase1), mag1 * np.sin(phase1))
                 value_2 = np.complex(mag2 * np.cos(phase2), mag2 * np.sin(phase2))
@@ -52,8 +52,8 @@ class Mv3dCreator(object):
                 mag_u = sqrt_coef * np.power(i ** 2, (d - 4) / 2)
                 mag_v = sqrt_coef * np.power(i ** 2, (d - 4) / 2)
             else:
-                mag_u = np.random.normal(0, 1) * sqrt_coef * np.power(i ** 2, (d - 4) / 2)
-                mag_v = np.random.normal(0, 1) * sqrt_coef * np.power(i ** 2, (d - 4) / 2)
+                mag_u = np.random.randn() * sqrt_coef * np.power(i ** 2, (d - 4) / 2)
+                mag_v = np.random.randn() * sqrt_coef * np.power(i ** 2, (d - 4) / 2)
 
             value_u = np.complex(mag_u * np.cos(phase_u), mag_u * np.sin(phase_u))
             value_v = np.complex(mag_v * np.cos(phase_v), mag_v * np.sin(phase_v))
