@@ -128,7 +128,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self.edt_sq = QLineEdit()
         self.edt_sq.setText("1.0")
         self.cbx_num = QComboBox()
-        self.cbx_num.addItems(["32x32", "64x64", "128x128", "256",
+        self.cbx_num.addItems(["32x32", "64x64", "128x128", "256x256",
                                "512x512", "1024x1024", "2048x2048"])
         self.cbx_num.setCurrentIndex(3)
         self.edt_inter = QLineEdit()
@@ -184,7 +184,7 @@ class MvFractalSurfaceGui(QMainWindow):
         if self.method == "离散傅里叶逆变换":
             dim = float(self.edt_dim.text())
             sq = float(self.edt_sq.text())
-            num = int(self.cbx_num.currentText())
+            num = int(self.cbx_num.currentText().split('x')[0])
             si = float(self.edt_inter.text())
             stable = self.chx_stable.isChecked()
             sc.create_surf_dft(num, dim, sq, si, stable)
