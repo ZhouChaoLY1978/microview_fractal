@@ -14,6 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 from mv_data import MvData
 from mv_3dcreator import Mv3dCreator
+from matplotlib.colors import LightSource
 
 
 class MvFractalSurfaceGui(QMainWindow):
@@ -21,6 +22,8 @@ class MvFractalSurfaceGui(QMainWindow):
         super().__init__()
         self.data = MvData()
         self.method = "离散傅里叶逆变换"
+        self.b_equal_axis = False
+        self.b_detail = False
 
         self._init_ui()
 
@@ -49,7 +52,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self._set_button()
         self._set_show_para()
 
-        self._draw_fractal_surface()
+        self._create_surface()
 
     def _set_matplot_layout(self):
         self.figure = plt.figure()
@@ -61,13 +64,22 @@ class MvFractalSurfaceGui(QMainWindow):
 
         self.cbx_equal = QCheckBox("等比例坐标")
         self.cbx_equal.stateChanged.connect(lambda: self._equal_state())
+        self.cbx_detail = QCheckBox("显示表面细节")
+        self.cbx_detail.stateChanged.connect(lambda: self._show_detail())
 
         self.left_layout.addWidget(self.canvas)
-        self.left_layout.addWidget(self.cbx_equal)
+        # self.left_layout.addWidget(self.cbx_equal)
+        # 目前Axes3D尚不支持等比例坐标
+        self.left_layout.addWidget(self.cbx_detail)
         self.left_layout.addWidget(self.toolbar)
 
     def _equal_state(self):
-        pass
+        self.b_equal_axis = self.cbx_equal.isChecked()
+        self._redraw()
+
+    def _show_detail(self):
+        self.b_detail = self.cbx_detail.isChecked()
+        self._redraw()
 
     def _set_model_method(self):
         ''' 选择建模算法 '''
@@ -130,7 +142,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self.cbx_num = QComboBox()
         self.cbx_num.addItems(["32x32", "64x64", "128x128", "256x256",
                                "512x512", "1024x1024", "2048x2048"])
-        self.cbx_num.setCurrentIndex(3)
+        self.cbx_num.setCurrentIndex(2)
         self.edt_inter = QLineEdit()
         self.edt_inter.setText("1")
         self.chx_stable = QCheckBox("平稳分形")
@@ -160,6 +172,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self.btn_draw.setToolTip("单击开始绘图")
         self.btn_draw.setDefault(True)
         self.right_layout.addWidget(self.btn_draw)
+        self.btn_draw.clicked.connect(self._create_surface)
 
     def _set_show_para(self):
         self.table_widget = QTableWidget()
@@ -179,7 +192,7 @@ class MvFractalSurfaceGui(QMainWindow):
         item_1 = QTableWidgetItem("Sku")
         self.table_widget.setItem(3, 0, item_1)
 
-    def _draw_fractal_surface(self):
+    def _create_surface(self):
         sc = Mv3dCreator()
         if self.method == "离散傅里叶逆变换":
             dim = float(self.edt_dim.text())
@@ -199,8 +212,17 @@ class MvFractalSurfaceGui(QMainWindow):
         y = np.arange(0, ny*si, si)
         x, y = np.meshgrid(x, y)
 
-        self.ax.plot_surface(x, y, self.data.value, rstride=1,
-                             cstride=1, cmap=cm.viridis)
+        if self.b_detail or nx < 64:
+            rst = 1
+            cst = 1
+        else:
+            rst = nx // 64
+            cst = ny // 64
+
+        self.ax.cla()
+        self.ax.plot_surface(x, y, self.data.value, rstride=rst,
+                             cstride=cst, cmap=cm.gist_earth, shade=False)
+
         self.canvas.draw()
 
 if __name__ == "__main__":
