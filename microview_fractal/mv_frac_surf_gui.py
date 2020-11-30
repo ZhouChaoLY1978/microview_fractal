@@ -14,6 +14,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 from mv_data import MvData
 from mv_3dcreator import Mv3dCreator
+from mv_3dparameter import Mv3dParameter
 from matplotlib.colors import LightSource
 
 
@@ -204,6 +205,23 @@ class MvFractalSurfaceGui(QMainWindow):
 
         self.data = sc.get_data()
         self._redraw()
+
+        paras = Mv3dParameter(self.data)
+        sq = paras.get_Sq()
+        item = QTableWidgetItem(str(sq))
+        self.table_widget.setItem(0, 1, item)
+
+        sa = paras.get_Sa()
+        item = QTableWidgetItem(str(sa))
+        self.table_widget.setItem(1, 1, item)
+
+        ssk = paras.get_Ssk()
+        item = QTableWidgetItem(str(ssk))
+        self.table_widget.setItem(2, 1, item)
+
+        sku = paras.get_Sku()
+        item = QTableWidgetItem(str(sku))
+        self.table_widget.setItem(3, 1, item)
 
     def _redraw(self):
         nx, ny = self.data.value.shape
