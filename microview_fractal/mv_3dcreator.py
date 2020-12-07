@@ -13,6 +13,50 @@ class Mv3dCreator(object):
     def __init__(self):
         self.data = MvData()
 
+    def create_surf_rmd(self, n:int, d:float, si:float, sa:float):
+        """ 基于随机中点位移法创建分形表面
+
+        :param n: 采样点数，数值应为2的幂次方
+        :param d: 分形维数，2<d<3
+        :param si: 采样间隔
+        :param sa: 构建表面的Sa值
+        """
+        lev = int(np.log2(n))
+        surf = np.zeros((n+1, n+1))
+        st_dev = 1
+        stp = n // 2
+        hurst = 3 - d
+        # 初始化四个角点的坐标值
+        surf[0, 0] = st_dev * np.random.normal()
+        surf[0, n] = st_dev * np.random.normal()
+        surf[n, 0] = st_dev * np.random.normal()
+        surf[n, n] = st_dev * np.random.normal()
+        #
+        for lv in range(lev):
+            st_dev = st_dev * np.power(0.5, 0.5*hurst)
+            for i in range(stp, n, stp):
+                for j in range(stp, n, stp):
+                    surf[i, j] = self._avg_4(st_dev, surf[i-stp, j-stp], surf[i+stp, j-stp],
+                                             surf[i-stp, j+stp], surf[i+stp, j+stp])
+            for i in range(stp, n, stp*2):
+                surf[0, i] = self._avg_3(st_dev, surf[0, i-stp], surf[stp, i], surf[0, i+stp])
+                surf[n, i] = self._avg_3(st_dev, surf[n, i-stp], surf[n-stp, i], surf[n, i+stp])
+                surf[i, 0] = self._avg_3(st_dev, surf[i-stp, 0], surf[i, stp], surf[i+stp, 0])
+                surf[i, n] = self._avg_3(st_dev, surf[i-stp, n], surf[i, n-stp], surf[i+stp, n])
+            for i in range(2*stp, n, 2*stp):
+                for j in range(stp, n, 2*stp):
+                    pass
+
+
+    def _avg_4(self, st_dev, f1, f2, f3, f4):
+        val = (f1+f2+f3+f4)/4 + st_dev*np.random.normal()
+        return val
+
+    def _avg_3(self, st_dev, f1, f2, f3):
+        val = (f1+f2+f3)/3 + st_dev*np.random.normal()
+        return val
+
+
     def create_surf_dft(self, n, d, sq, inter, stable=True):
         """ 基于离散傅里叶逆变换创建分形表面
 
