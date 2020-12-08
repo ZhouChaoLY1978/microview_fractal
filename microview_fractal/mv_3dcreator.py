@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
@@ -33,19 +32,40 @@ class Mv3dCreator(object):
         surf[n, n] = st_dev * np.random.normal()
         #
         for lv in range(lev):
+            print('lv', lv)
             st_dev = st_dev * np.power(0.5, 0.5*hurst)
             for i in range(stp, n, stp):
                 for j in range(stp, n, stp):
                     surf[i, j] = self._avg_4(st_dev, surf[i-stp, j-stp], surf[i+stp, j-stp],
                                              surf[i-stp, j+stp], surf[i+stp, j+stp])
-            for i in range(stp, n, stp*2):
-                surf[0, i] = self._avg_3(st_dev, surf[0, i-stp], surf[stp, i], surf[0, i+stp])
-                surf[n, i] = self._avg_3(st_dev, surf[n, i-stp], surf[n-stp, i], surf[n, i+stp])
-                surf[i, 0] = self._avg_3(st_dev, surf[i-stp, 0], surf[i, stp], surf[i+stp, 0])
-                surf[i, n] = self._avg_3(st_dev, surf[i-stp, n], surf[i, n-stp], surf[i+stp, n])
-            for i in range(2*stp, n, 2*stp):
-                for j in range(stp, n, 2*stp):
-                    pass
+            for i in range(0, n+1, stp):
+                for j in range(0, n+1, stp):
+                    if np.fabs(surf[i,j]) > 0.00001 :
+                        continue
+                    if i == 0:
+                        surf[i, j] = self._avg_3(st_dev, surf[i, j-stp], surf[stp, j], surf[i, j+stp])
+                    elif i == n:
+                        surf[i, j] = self._avg_3(st_dev, surf[n, j-stp], surf[n-stp, j], surf[n, j+stp])
+                    elif j == 0:
+                        surf[i, j] = self._avg_3(st_dev, surf[i-stp, j], surf[i, stp], surf[i+stp, j])
+                    elif j == n:
+                        surf[i, j] = self._avg_3(st_dev, surf[i-stp, j], surf[i, n-stp], surf[i+stp, n])
+                    else:
+                        surf[i, j] = self._avg_4(st_dev, surf[i-stp, j-stp], surf[i+stp, j-stp],
+                                             surf[i-stp, j+stp], surf[i+stp, j+stp])
+            stp = stp // 2
+
+        # 使表面的平均高度为0
+        surf = surf[0:n, 0:n]
+        h_mean = np.mean(surf)
+        surf = surf - h_mean
+        sa_surf = np.round(np.mean(np.abs(surf)),4)
+        sa = np.round(sa, 4)
+        ratio = sa / sa_surf
+        surf = surf * ratio
+
+        self.data.value = surf
+        self.data.interval = si
 
 
     def _avg_4(self, st_dev, f1, f2, f3, f4):
@@ -147,5 +167,8 @@ class Mv3dCreator(object):
 
 if __name__ == "__main__":
     test = Mv3dCreator()
-    test.create_surf_dft(128, 2.2, 1, 1)
-    test.show_surface(test.get_data().value, 128, 1)
+    # test.create_surf_dft(128, 2.2, 1, 1)
+    test.create_surf_rmd(64, 2.3, 0.1, 10)
+    print(test.get_data().value)
+    print(np.mean(np.abs(test.get_data().value)))
+    test.show_surface(test.get_data().value, 64, 1)

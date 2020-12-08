@@ -97,7 +97,7 @@ class MvFractalSurfaceGui(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addWidget(self.radio_dft)
-        # layout.addWidget(self.radio_rmd)
+        layout.addWidget(self.radio_rmd)
         # layout.addWidget(self.radio_wm)
         gp_method.setLayout(layout)
         self.right_layout.addWidget(gp_method)
@@ -111,7 +111,7 @@ class MvFractalSurfaceGui(QMainWindow):
             self.chx_stable.setDisabled(False)
             self.chx_stable.setChecked(True)
         elif self.method == "随机中点位移法":
-            self.lab_sq.setText("尺度系数：")
+            self.lab_sq.setText("高度Sa：")
             self.chx_stable.setDisabled(True)
             self.chx_stable.setChecked(False)
         else:
