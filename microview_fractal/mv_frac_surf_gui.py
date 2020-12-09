@@ -23,7 +23,7 @@ class MvFractalSurfaceGui(QMainWindow):
         super().__init__()
         self.data = MvData()
         self.method = "离散傅里叶逆变换"
-        self.b_equal_axis = False
+        # self.b_equal_axis = False     目前matplotlib暂不支持三维表面的等比例坐标轴显示
         self.b_detail = False
 
         self._init_ui()
@@ -63,8 +63,8 @@ class MvFractalSurfaceGui(QMainWindow):
 
         self.toolbar = NavigationToolbar(self.canvas, self.c_widget)
 
-        self.cbx_equal = QCheckBox("等比例坐标")
-        self.cbx_equal.stateChanged.connect(lambda: self._equal_state())
+        # self.cbx_equal = QCheckBox("等比例坐标")
+        # self.cbx_equal.stateChanged.connect(lambda: self._equal_state())
         self.cbx_detail = QCheckBox("显示表面细节")
         self.cbx_detail.stateChanged.connect(lambda: self._show_detail())
 
@@ -88,12 +88,12 @@ class MvFractalSurfaceGui(QMainWindow):
         gp_method.setMaximumHeight(120)
         self.radio_dft = QRadioButton("离散傅里叶逆变换")
         self.radio_rmd = QRadioButton("随机中点位移法")
-        self.radio_wm = QRadioButton("W-M函数法")
+        # self.radio_wm = QRadioButton("W-M函数法")
         self.radio_dft.setChecked(True)
 
         self.radio_dft.toggled.connect(lambda: self._select_method(self.radio_dft))
         self.radio_rmd.toggled.connect(lambda: self._select_method(self.radio_rmd))
-        self.radio_wm.toggled.connect(lambda: self._select_method(self.radio_wm))
+        # self.radio_wm.toggled.connect(lambda: self._select_method(self.radio_wm))
 
         layout = QVBoxLayout()
         layout.addWidget(self.radio_dft)
@@ -114,21 +114,14 @@ class MvFractalSurfaceGui(QMainWindow):
             self.lab_sq.setText("高度Sa：")
             self.chx_stable.setDisabled(True)
             self.chx_stable.setChecked(False)
-        else:
-            self.lab_sq.setText("尺度系数：")
-            self.chx_stable.setText("随机相位")
-            self.chx_stable.setDisabled(False)
-            self.chx_stable.setChecked(True)
+
 
     def _set_get_para(self, method="离散傅里叶逆变换"):
         para_group = QGroupBox("输入建模参数")
         para_group.setMaximumHeight(150)
         # 设置4个标签 --------
         self.lab_dim = QLabel("分形维数：")
-        if method == "离散傅里叶逆变换":
-            self.lab_sq = QLabel("高度Sq：")
-        else:
-            self.lab_sq = QLabel("尺度系数：")
+        self.lab_sq = QLabel("高度Sq：")
         self.lab_num = QLabel("采样点数：")
         self.lab_inter = QLabel("采样间隔：")
         # 设置4个编辑控件 --------
@@ -147,12 +140,7 @@ class MvFractalSurfaceGui(QMainWindow):
         self.edt_inter = QLineEdit()
         self.edt_inter.setText("1")
         self.chx_stable = QCheckBox("平稳分形")
-        if method == "随机中点位移法":
-            self.chx_stable.setDisabled(True)
-            self.chx_stable.setChecked(False)
-        else:
-            self.chx_stable.setDisabled(False)
-            self.chx_stable.setChecked(True)
+        self.chx_stable.setChecked(True)
 
         form_layout = QFormLayout()
         form_layout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.lab_dim)
@@ -195,13 +183,15 @@ class MvFractalSurfaceGui(QMainWindow):
 
     def _create_surface(self):
         sc = Mv3dCreator()
+        dim = float(self.edt_dim.text())
+        sqa = float(self.edt_sq.text())
+        num = int(self.cbx_num.currentText().split('x')[0])
+        si = float(self.edt_inter.text())
         if self.method == "离散傅里叶逆变换":
-            dim = float(self.edt_dim.text())
-            sq = float(self.edt_sq.text())
-            num = int(self.cbx_num.currentText().split('x')[0])
-            si = float(self.edt_inter.text())
             stable = self.chx_stable.isChecked()
-            sc.create_surf_dft(num, dim, sq, si, stable)
+            sc.create_surf_dft(num, dim, sqa, si, stable)
+        elif self.method == "随机中点位移法":
+            sc.create_surf_rmd(num, dim, sqa, si)
 
         self.data = sc.get_data()
         self._redraw()
