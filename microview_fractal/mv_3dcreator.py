@@ -12,7 +12,7 @@ class Mv3dCreator(object):
     def __init__(self):
         self.data = MvData()
 
-    def create_surf_rmd(self, n:int, d:float, si:float, sa:float):
+    def create_surf_rmd(self, n:int, d:float, sa:float, si:float):
         """ 基于随机中点位移法创建分形表面
 
         :param n: 采样点数，数值应为2的幂次方
@@ -32,10 +32,10 @@ class Mv3dCreator(object):
         surf[n, n] = st_dev * np.random.normal()
         #
         for lv in range(lev):
-            print('lv', lv)
+
             st_dev = st_dev * np.power(0.5, 0.5*hurst)
-            for i in range(stp, n, stp):
-                for j in range(stp, n, stp):
+            for i in range(stp, n, 2*stp):
+                for j in range(stp, n, 2*stp):
                     surf[i, j] = self._avg_4(st_dev, surf[i-stp, j-stp], surf[i+stp, j-stp],
                                              surf[i-stp, j+stp], surf[i+stp, j+stp])
             for i in range(0, n+1, stp):
@@ -51,8 +51,8 @@ class Mv3dCreator(object):
                     elif j == n:
                         surf[i, j] = self._avg_3(st_dev, surf[i-stp, j], surf[i, n-stp], surf[i+stp, n])
                     else:
-                        surf[i, j] = self._avg_4(st_dev, surf[i-stp, j-stp], surf[i+stp, j-stp],
-                                             surf[i-stp, j+stp], surf[i+stp, j+stp])
+                        surf[i, j] = self._avg_4(st_dev, surf[i, j-stp], surf[i, j+stp],
+                                             surf[i-stp, j], surf[i+stp, j])
             stp = stp // 2
 
         # 使表面的平均高度为0
@@ -69,11 +69,11 @@ class Mv3dCreator(object):
 
 
     def _avg_4(self, st_dev, f1, f2, f3, f4):
-        val = (f1+f2+f3+f4)/4 + st_dev*np.random.normal()
+        val = (f1+f2+f3+f4)/4 + st_dev * np.random.normal()
         return val
 
     def _avg_3(self, st_dev, f1, f2, f3):
-        val = (f1+f2+f3)/3 + st_dev*np.random.normal()
+        val = (f1+f2+f3)/3 + st_dev * np.random.normal()
         return val
 
 
@@ -167,8 +167,9 @@ class Mv3dCreator(object):
 
 if __name__ == "__main__":
     test = Mv3dCreator()
+    n = 128
     # test.create_surf_dft(128, 2.2, 1, 1)
-    test.create_surf_rmd(64, 2.3, 0.1, 10)
+    test.create_surf_rmd(n, 2.2, 1, 10)
     print(test.get_data().value)
     print(np.mean(np.abs(test.get_data().value)))
-    test.show_surface(test.get_data().value, 64, 1)
+    test.show_surface(test.get_data().value, n, 1)
