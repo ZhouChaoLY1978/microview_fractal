@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
-matplotlib.use('qt5agg')
+
 from mv_data import MvData
 from mv_3dcreator import Mv3dCreator
 from mv_3dparameter import Mv3dParameter
