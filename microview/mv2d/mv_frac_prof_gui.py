@@ -10,9 +10,9 @@ from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationTo
 from matplotlib.figure import Figure
 import matplotlib
 import numpy as np
-from mv_2dcreator import Mv2dCreator
-from mv_2dparameter import Mv2dParameter
-from mv_data import MvData
+from mv2d.mv_2dcreator import Mv2dCreator
+from mv2d.mv_2dparameter import Mv2dParameter
+from mv2d.mv_data import MvData
 
 
 class MvFractalProfileGui(QMainWindow):
@@ -37,7 +37,7 @@ class MvFractalProfileGui(QMainWindow):
         self.setMinimumSize(800, 600)   # 固定界面尺寸
         self.setMaximumSize(800, 600)   # 固定界面尺寸
         # --------
-        self.setWindowIcon(QIcon("../icons/main_icon.png"))
+        self.setWindowIcon(QIcon("../../icons/main_icon.png"))
         # --------
         self.status = self.statusBar()
         self.status.showMessage("分形轮廓建模及表征参数计算", 10000)
@@ -50,7 +50,7 @@ class MvFractalProfileGui(QMainWindow):
         help_menu.triggered[QAction].connect(self._help_process)
         # --------
         # 工具栏 --------
-        exit_action = QAction(QIcon("../icons/close.png"), "Exit", self)
+        exit_action = QAction(QIcon("../../icons/close.png"), "Exit", self)
         exit_action.setStatusTip("退出应用")
         exit_action.triggered.connect(self.close)
         self.toolbar = self.addToolBar("Exit")

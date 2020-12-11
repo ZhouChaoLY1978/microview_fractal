@@ -11,7 +11,7 @@ e-mail: zandz1978@126.com
 last edited:
 """
 import numpy as np
-from mv_data import MvData
+from mv2d.mv_data import MvData
 
 
 class Mv2dParameter(object):

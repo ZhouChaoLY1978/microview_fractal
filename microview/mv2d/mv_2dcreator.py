@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from mv_data import MvData
+from mv2d.mv_data import MvData
 import scipy
 
 

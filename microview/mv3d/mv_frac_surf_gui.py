@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
 import numpy as np
-import PySide2
 from PySide2 import QtWidgets
 from PySide2.QtCore import QRegExp
 from PySide2.QtGui import QRegExpValidator
@@ -13,10 +12,9 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 
-from mv_data import MvData
-from mv_3dcreator import Mv3dCreator
-from mv_3dparameter import Mv3dParameter
-from matplotlib.colors import LightSource
+from mv2d.mv_data import MvData
+from mv3d.mv_3dcreator import Mv3dCreator
+from mv3d.mv_3dparameter import Mv3dParameter
 
 
 class MvFractalSurfaceGui(QMainWindow):

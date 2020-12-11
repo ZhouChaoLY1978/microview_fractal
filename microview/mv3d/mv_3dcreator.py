@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-from mv_data import MvData
+from mv2d.mv_data import MvData
 
 
 class Mv3dCreator(object):
