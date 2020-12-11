@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 import scipy
 
 
@@ -10,7 +10,7 @@ class Mv2dCreator(object):
 
     """
     def __init__(self):
-        self.data = MvData()
+        self.data = MvData2d()
 
     def create_data_wm(self, n: int, d: float, g: float, inter: float, random=True, gamma=1.5):
         """ 基于Weierstrass Mandelbrot函数生成分形数据

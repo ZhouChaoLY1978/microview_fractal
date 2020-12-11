@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 
 class Mv3dParameter(object):
 
-    def __init__(self, data: MvData=None):
+    def __init__(self, data: MvData2d=None):
         self.data = data
         self.para_dict = {}
 

@@ -12,7 +12,7 @@ import matplotlib
 import numpy as np
 from mv2d.mv_2dcreator import Mv2dCreator
 from mv2d.mv_2dparameter import Mv2dParameter
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 
 
 class MvFractalProfileGui(QMainWindow):
@@ -21,7 +21,7 @@ class MvFractalProfileGui(QMainWindow):
 
         QToolTip.setFont(QFont('Sans Serif', 12))
 
-        self.data = MvData()
+        self.data = MvData2d()
         self.method = "离散傅里叶逆变换"
         # --------
         self.figure = Figure()

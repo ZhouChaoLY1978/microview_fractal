@@ -3,14 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 
 
 class Mv3dCreator(object):
     """ 创建分形表面
     """
     def __init__(self):
-        self.data = MvData()
+        self.data = MvData2d()
 
     def create_surf_rmd(self, n:int, d:float, sa:float, si:float):
         """ 基于随机中点位移法创建分形表面

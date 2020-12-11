@@ -11,14 +11,14 @@ e-mail: zandz1978@126.com
 last edited:
 """
 import numpy as np
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 
 
 class Mv2dParameter(object):
     """ 计算表征参数
     """
 
-    def __init__(self, data: MvData = None):
+    def __init__(self, data: MvData2d = None):
         """ 构造函数
 
         :param data: 二维数据，MvData类型

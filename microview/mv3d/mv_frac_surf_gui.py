@@ -12,7 +12,7 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib
 
-from mv2d.mv_data import MvData
+from mv2d.mv_data2d import MvData2d
 from mv3d.mv_3dcreator import Mv3dCreator
 from mv3d.mv_3dparameter import Mv3dParameter
 
@@ -20,7 +20,7 @@ from mv3d.mv_3dparameter import Mv3dParameter
 class MvFractalSurfaceGui(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.data = MvData()
+        self.data = MvData2d()
         self.method = "离散傅里叶逆变换"
         # self.b_equal_axis = False     目前matplotlib暂不支持三维表面的等比例坐标轴显示
         self.b_detail = False
