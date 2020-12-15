@@ -23,7 +23,7 @@ class MvFractalProfileGui(QMainWindow):
 
         self.data = MvData2d()
         self.method = "离散傅里叶逆变换"
-        # --------
+        # 初始化绘图环境
         self.figure = Figure()
         self.canvas = FigureCanvas(self.figure)
         self.ax = self.figure.add_subplot(111)
@@ -70,7 +70,7 @@ class MvFractalProfileGui(QMainWindow):
         self._set_matplotlib_layout()     # 为matplotlib画布及工具栏进行布局
         self._set_model_method()  # 为"选择算法区域"进行布局
         self._set_get_para()  # 为”分形参数“区域进行布局
-        self._set_button()  # ”绘图“按钮布局
+        self._set_button()  # 功能按钮区布局
         self._set_show_para()  # 基本参数显示区域布局
 
         self._draw_fractal_profile()
@@ -159,11 +159,25 @@ class MvFractalProfileGui(QMainWindow):
         self.right_layout_lev1.addWidget(para_group)
 
     def _set_button(self):
+        func_btn_layout = QHBoxLayout()
+
         self.btn_draw = QPushButton("绘图")
         self.btn_draw.setToolTip("单击开始绘图")
         self.btn_draw.setDefault(True)      # 设置为默认按钮
-        self.right_layout_lev1.addWidget(self.btn_draw)
+        # self.right_layout_lev1.addWidget(self.btn_draw)
         self.btn_draw.clicked.connect(self._draw_fractal_profile)
+
+        self.btn_export = QPushButton("导出...")
+        self.btn_export.setToolTip("单击导出轮廓数据")
+        # self.right_layout_lev1.addWidget(self.btn_export)
+        self.btn_export.clicked.connect(self._exprot_profile_data)
+
+        func_btn_layout.addWidget(self.btn_draw)
+        func_btn_layout.addWidget(self.btn_export)
+        self.right_layout_lev1.addLayout(func_btn_layout)
+
+    def _exprot_profile_data(self):
+        pass
 
     def _set_show_para(self):
         self.table_widget = QTableWidget()
@@ -230,15 +244,17 @@ class MvFractalProfileGui(QMainWindow):
     def _redraw(self):
         is_equal = self.cbx_equal.isChecked()
 
-        length = np.size(self.data.value)
-        x = np.arange(0, self.data.interval * length, self.data.interval)
-        y = self.data.value
         self.ax.cla()
-        self.ax.plot(x, y)
+        self.data.draw_profile(self.ax)
+
         if is_equal:
             self.ax.axis('equal')
         else:
             self.ax.axis('auto')
+
+        self.ax.set_xlabel('profile direction')
+        self.ax.set_ylabel('height')
+        self.ax.set_title('分形轮廓')
 
         self.canvas.draw()
 

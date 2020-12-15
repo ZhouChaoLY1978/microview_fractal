@@ -6,6 +6,7 @@
 最后编辑时间：
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class MvData2d(object):
@@ -33,22 +34,28 @@ class MvData2d(object):
     def value(self, value):
         self.__value = value
 
-    def draw_profile(self, ax, param_dict):
+    def draw_profile(self, ax1):
         """ 根据成员变量中的数据，绘制轮廓
 
-
+        :param ax1: 绘制图形的axes
+        :param param_dict: 存储赋给ax.plot的绘图参数
         """
-        pass
+        sn = np.size(self.__value)  # 轮廓采样点数
+        x_value = np.arange(0, self.__interval * sn, self.__interval)
+        profile = ax1.plot(x_value, self.__value)
+        return profile
 
 
 if __name__ == "__main__":
     md = MvData2d()
-    values = np.array([[1, 2, 3, 4, 5], [3, 4, 5, 6, 7]])
+    values = np.array([1, 2, 3, 4, 5])
 
     md.value = values
     md.interval = 0.5
 
-    print(md.value)
-    print(md.interval)
+    fig, ax = plt.subplots(1, 1)
+    md.draw_profile(ax)
+    fig.show()
+
 
 
