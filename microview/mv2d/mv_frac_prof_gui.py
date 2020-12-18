@@ -177,7 +177,10 @@ class MvFractalProfileGui(QMainWindow):
         self.right_layout_lev1.addLayout(func_btn_layout)
 
     def _exprot_profile_data(self):
-        pass
+        fname, ftype = QFileDialog.getSaveFileName(self, "保存文件", ".", "Text Files (*.txt)")
+        np.savetxt(fname, self.data.value)
+        QMessageBox.information(self, "信息", "完成数据导出")
+
 
     def _set_show_para(self):
         self.table_widget = QTableWidget()
